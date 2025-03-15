@@ -19,11 +19,16 @@ import colors from "colors";
 import axios from "axios";
 
 function withCORS(headers, request) {
-    headers["access-control-allow-origin"] = "*";
+    // Allow any origin (replace with a specific domain if needed)
+    headers["access-control-allow-origin"] = "*"; 
     const corsMaxAge = request.corsAnywhereRequestState.corsMaxAge;
-    if (request.method === "OPTIONS" && corsMaxAge) {
-        headers["access-control-max-age"] = corsMaxAge;
+    
+    // Handle the OPTIONS request for preflight
+    if (request.method === "OPTIONS") {
+        headers["access-control-max-age"] = corsMaxAge || 86400; // Default to 24 hours
     }
+
+    // Allow specific methods and headers for CORS requests
     if (request.headers["access-control-request-method"]) {
         headers["access-control-allow-methods"] = request.headers["access-control-request-method"];
         delete request.headers["access-control-request-method"];
@@ -33,6 +38,7 @@ function withCORS(headers, request) {
         delete request.headers["access-control-request-headers"];
     }
 
+    // Expose necessary headers to the client
     headers["access-control-expose-headers"] = Object.keys(headers).join(",");
 
     return headers;
